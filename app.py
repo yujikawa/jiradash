@@ -16,6 +16,7 @@ app.layout = \
     html.Div(className="container", children=[
 
         html.H1(children='Task Dashboard'),
+
         dcc.Input(
             id='startdate-input',
             type='Date',
@@ -26,24 +27,23 @@ app.layout = \
             type='Date',
             value=dt.date.today()
         ),
-        dcc.Graph(id='task_graph'),
-
+        dcc.Graph(id='task_bar_graph'),
+        dcc.Graph(id='task_line_graph'),
     ])
 
 # 日付を入力
 @app.callback(
-    Output('task_graph', 'figure'),
+    Output('task_bar_graph', 'figure'),
     [Input(component_id='startdate-input', component_property='value'),
      Input(component_id='enddate-input', component_property='value')]
 )
-def update_task_graph(start_date, end_date):
-    print("start={} end={}".format(start_date, end_date))
+def update_task_bar_graph(start_date, end_date):
     df = get_jira_tasks(start_date, end_date)
     task_info = df.groupby(['name']).sum()
     graph = {
             'data': [
-                {'x': task_info.index, 'y': list(task_info.ix[:, 0]), 'type': 'bar', 'name': '予'},
-                {'x': task_info.index, 'y': list(task_info.ix[:, 1]), 'type': 'bar', 'name': '実'},
+                {'x': task_info.index, 'y': list(task_info.loc[:, "timeoriginalestimate"]), 'type': 'bar', 'name': '予'},
+                {'x': task_info.index, 'y': list(task_info.loc[:, "timespent"]), 'type': 'bar', 'name': '実'},
             ],
             'layout': {
                 'title': 'Member tasks {}〜{}'.format(start_date, end_date)
@@ -51,6 +51,26 @@ def update_task_graph(start_date, end_date):
         }
     return graph
 
+# 日付を入力
+@app.callback(
+    Output('task_line_graph', 'figure'),
+    [Input(component_id='startdate-input', component_property='value'),
+     Input(component_id='enddate-input', component_property='value')]
+)
+def update_task_line_graph(start_date, end_date):
+    df = get_jira_tasks(start_date, end_date)
+    task_info = df.groupby(['day']).sum()
+    graph = {
+            'data': [
+                {'x': task_info.index, 'y': list(task_info.loc[:, "timeoriginalestimate"]), 'type': 'line', 'name': '予'},
+                {'x': task_info.index, 'y': list(task_info.loc[:, "timespent"]), 'type': 'line', 'name': '実'},
+            ],
+            'layout': {
+                'title': 'Team tasks {}〜{}'.format(start_date, end_date)
+            }
+        }
+    return graph
+
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
