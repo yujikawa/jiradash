@@ -19,7 +19,7 @@ app.layout = \
         dcc.Input(
             id='startdate-input',
             type='Date',
-            value=dt.date.today() - dt.timedelta(days=30)
+            value=dt.date.today() - dt.timedelta(days=7)
         ),
         dcc.Input(
             id='enddate-input',
