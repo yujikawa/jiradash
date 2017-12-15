@@ -24,14 +24,17 @@ def get_jira_tasks(start_date, end_date):
     and duedate <= "{}" 
     order by created DESC""".format(project_name, start_date,end_date )
     issues = jira.search_issues(jq)
-    data = pd.DataFrame([])
+    columns = ['year','month','day', 'name','timeoriginalestimate','timespent']
+    data = pd.DataFrame([], columns=columns)
     for issue in issues:
-        name = issue.fields.assignee.key
+        name = "NoAssign"
+        if issue.fields.assignee:
+            name = issue.fields.assignee.displayName
         (year, month, day) = issue.fields.duedate.split("-")
         timeoriginalestimate = issue.fields.timeoriginalestimate if issue.fields.timeoriginalestimate is not None else 0
         timespent = issue.fields.timespent if issue.fields.timespent is not None else 0
-        data = data.append([[year, month, day, name, timeoriginalestimate/3600, timespent/3600]])
+        tmp_df = pd.DataFrame([[year, month, day, name, timeoriginalestimate/3600, timespent/3600]], columns=columns)
+        data = data.append(tmp_df)
 
-    data.columns =['year','month','day', 'name','timeoriginalestimate','timespent']
     data.reset_index(drop=True, inplace=True)
     return data

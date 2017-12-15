@@ -2,7 +2,7 @@ import datetime as dt
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from utils.jira_api import get_jira_tasks
 
 
@@ -27,6 +27,7 @@ app.layout = \
             type='Date',
             value=dt.date.today()
         ),
+        html.Button(id='submit-button', n_clicks=0, children='Submit'),
         dcc.Graph(id='task_bar_graph'),
         dcc.Graph(id='task_line_graph'),
     ])
@@ -34,10 +35,12 @@ app.layout = \
 # 日付を入力
 @app.callback(
     Output('task_bar_graph', 'figure'),
-    [Input(component_id='startdate-input', component_property='value'),
-     Input(component_id='enddate-input', component_property='value')]
+    [Input('submit-button', 'n_clicks')],
+    [State('startdate-input', 'value'),
+     State('enddate-input', 'value')]
 )
-def update_task_bar_graph(start_date, end_date):
+def update_task_bar_graph(n_clicks, start_date, end_date):
+
     df = get_jira_tasks(start_date, end_date)
     task_info = df.groupby(['name']).sum()
     graph = {
@@ -54,10 +57,12 @@ def update_task_bar_graph(start_date, end_date):
 # 日付を入力
 @app.callback(
     Output('task_line_graph', 'figure'),
-    [Input(component_id='startdate-input', component_property='value'),
-     Input(component_id='enddate-input', component_property='value')]
+    [Input('submit-button', 'n_clicks')],
+    [State('startdate-input', 'value'),
+     State('enddate-input', 'value')]
 )
-def update_task_line_graph(start_date, end_date):
+def update_task_line_graph(n_clicks, start_date, end_date):
+
     df = get_jira_tasks(start_date, end_date)
     task_info = df.groupby(['day']).sum()
     graph = {
