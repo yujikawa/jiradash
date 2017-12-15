@@ -4,7 +4,7 @@ from utils.setting import project_name, options, usr, pas
 import pandas as pd
 
 
-def get_jira_tasks(start_date, end_date):
+def get_jira_tasks(start_date, end_date, pj_name=project_name):
     """
     Get Jira Task API
     :param start_date: YYYY-MM-DD
@@ -22,7 +22,7 @@ def get_jira_tasks(start_date, end_date):
     jq = """project = {} 
     and duedate >= "{}" 
     and duedate <= "{}" 
-    order by created DESC""".format(project_name, start_date,end_date )
+    order by created DESC""".format(pj_name, start_date,end_date )
     issues = jira.search_issues(jq)
     columns = ['year','month','day', 'name','timeoriginalestimate','timespent']
     data = pd.DataFrame([], columns=columns)

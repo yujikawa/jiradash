@@ -14,7 +14,6 @@ app.css.append_css({'external_url': 'https://maxcdn.bootstrapcdn.com/bootstrap/3
 # メインhtmlの作成
 app.layout = \
     html.Div(className="container", children=[
-
         html.H1(children='Task Dashboard'),
 
         dcc.Input(
